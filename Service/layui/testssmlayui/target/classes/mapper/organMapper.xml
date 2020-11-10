@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xiaowei.feihu.mapper.OrganMapper">
+    <select id="queryOrganList" resultType="com.xiaowei.feihu.entity.Organ">
+        select CONCAT('dept_',id) id ,deptName organName , CONCAT('dept_',pid) pid,1 type ,NULL sex from t_sys_dept
+        union ALL
+        select CONCAT('user_',id) id  ,realName organName,CONCAT('dept_',deptId) pid ,2 type,sex from t_sys_user
+    </select>
+</mapper>

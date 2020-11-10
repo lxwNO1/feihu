@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaowei.feihu.mapper.DeptMapper">
+    <select id="queryDeptList" resultType="com.xiaowei.feihu.entity.DeptModel">
+            select id,deptName,pid from t_sys_dept
+      </select>
+    <insert id="addDept" parameterType="com.xiaowei.feihu.entity.DeptModel">
+            insert into t_sys_Dept (deptName,pid,isValid,createTime,updateTime) values (#{deptName},#{pid},#{isvalid},SYSDATE(),SYSDATE())
+      </insert>
+    <delete id="delDept" parameterType="java.lang.Integer">
+            delete from t_sys_Dept where id=#{id}
+    </delete>
+</mapper>

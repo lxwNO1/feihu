@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>黑洞-主页</title>
+
+    <link rel="stylesheet" href="../../commons/layui/css/layui.css">
+    <link rel="stylesheet" href="../../commons/ztree/css/bootstrapStyle/bootstrapStyle.css">
+    <link rel="stylesheet" href="../../commons/selectTree/plugin/css/index.css">
+
+    <script src="../../commons/jquery/jquery-3.2.1.js"></script>
+    <script src="../../commons/ztree/js/jquery.ztree.all.js"></script>
+    <script src="../../commons/layui/layui.js"></script>
+    <script src="../../commons/selectTree/plugin/js/selectTree.js"></script>
+
+</head>
+<body>
+    <div class=" layui-layout-admin">
+        <!--导航条 开始-->
+        <div class="layui-header">
+            <!--导航条模块 图字-->
+            <div class="layui-logo"><a href="" style="color: white">黑洞 主页</a></div>
+            <!--导航条左边第一行-->
+            <ul class="layui-nav layui-layout-left">
+                <li class="layui-nav-item">
+                    <a href="javascript:;">test用户管理</a>
+                    <!--当前模块列-->
+                    <dl class="layui-nav-child">
+                        <dd><a  href="javascript:;" onclick="unified('/user')">全部用户</a></dd>
+                        <dd><a  href="javascript:;" onclick="unified('/layuitestuser')">授权</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item"><a href="" onclick="unified('/')">日志管理</a></li>
+                <li class="layui-nav-item"><a href="" onclick="unified('/')">账号管理</a></li>
+                <li class="layui-nav-item"><a href="" onclick="unified('/')">项目管理</a></li>
+                <li class="layui-nav-item"><a href="" onclick="unified('/')"></a></li>
+                <li class="layui-nav-item"><a href="" onclick="unified('/')"></a></li>
+            </ul>
+            <!--导航条左边第一行-->
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item"><img src="asdasd"></li>
+                <li class="layui-nav-item"><a href="" onclick="">dasda:用户</a></li>
+                <li class="layui-nav-item"><a href="javascript:;" onclick="iuser('/insuser')">注册</a></li>
+            </ul>            <!--导航条结束-->
+        </div>
+        <!--主要区域-->
+        <div class="layui-body" id="indexbody">
+            <!--扇页-->
+<!--            <div></div>-->
+        </div>
+        <div class="layui-footer">
+            <a>合作商家</a>
+        </div>
+    </div>
+<script>
+    //JavaScript代码区域
+    layui.use(['element','layer'], function(){
+        var element=layui.element;
+        // layui.element.init();//手动调用初始化方法
+
+        //按钮
+        window.unified=function(url){
+            $("#indexbody").load(url);
+        };
+
+        //注册
+        window.iuser=function(url){
+            alert("点击了")
+            $.ajax({
+                 type:"get"
+                ,async:false
+                ,url:url
+                ,success:function(geturl){
+                    // geturl.toString().split("script")
+                    var strings = geturl.toString().split("body>");
+                    var ssss =strings[1];
+                    layer.open({
+                        title:"注册"
+                        ,type:1
+                        ,area:['50%','100%']
+                        ,content:ssss.substr(0,ssss.length-2)
+                        ,success:function(layero, index){
+                            alert("inseuser")
+                            // ;
+                        }
+                        , btn: ["提交", "取消"]
+                        , yes: function (index, layero) {
+                        }
+                    });
+                }
+            })
+
+            // widow.iuser= function(url){
+            // }
+        }
+    })
+
+
+
+
+
+</script>
+    <!--用户新增表单-->
+    <script type="text/html" id="inseuser">
+        <a>用户</a>
+    </script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>layuitestuser</title>
+    <script src="../js/layui/layui.js"></script>
+    <script src="../js/jquery/jquery-1.9.1.js"></script>
+    <link rel="stylesheet" href="../js/layui/css/layui.css">
+</head>
+<body>
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md3">
+
+                <div class="layui-card-header">部门管理</div>
+                <div class="layui-card-body">
+                    <ul id="treeDemo" class="ztree"></ul>
+                </div>
+            </div>
+            <div class="layui-col-md3">
+                <div class="layui-card-header">角色管理
+                    <div class="layui-btn-group" style="float: right">
+                        <button type="button" class="layui-btn layui-btn-sm" id="addRole"><i class="layui-icon"></i>
+                        </button>
+                        <button type="button" class="layui-btn layui-btn-sm" id="updateDept"><i class="layui-icon"></i>
+                        </button>
+                        <button type="button" class="layui-btn layui-btn-sm" id="deleteDept"><i class="layui-icon"></i>
+                        </button>
+                        <button id="addRoleToUser" type="button" class="layui-btn layui-btn-normal layui-btn-radius layui-btn-disabled" disabled style="float: right;">给用户授予角色</button>
+                    </div>
+                </div>
+                <div class="layui-card-body">
+                    <ul id="treeDemo2" class="ztree"></ul>
+                </div>
+            </div>
+            <div class="layui-col-md3">
+
+                <div class="layui-card-header">
+                    用户管理
+                </div>
+                <div class="layui-card-body">
+                    <ul id="treeDemo3" class="ztree"></ul>
+                </div>
+            </div>
+        </div>
+<script>
+    layui.use('form',function(){
+        var form =layui.form
+        //加载树
+        var deptSetting = {
+            view: {
+                selectedMulti: false
+            },
+            callback:{
+                onclick:selRole
+            }
+        }
+        var roleSetting={
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            check: {
+                enable: true,
+                chkStyle: "checkbox"
+            }
+        }
+        var rightSetting={
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            }
+        }
+
+        //部门查询树
+        $.ajax({
+            url: "/organ/queryOrgan",
+            dataType: "json",
+            type: "post",
+            success: function (result) {
+                $.fn.zTree.init($("#treeDemo"), deptSetting, result).expandAll(true);
+            }
+        })
+
+        function selRole(event, treeId, treeNode){
+            var type=treeNode.type;
+            if(type == 2){
+                var organId=treeNode.id.split("_")[1];
+                selRoleTree(organId);
+                queryRightTree(organId);
+                $("#addRoleToUser").removeClass("layui-btn-disabled");
+                $("#addRoleToUser").attr("disabled",false);
+            }else{
+                layer.msg("请选择用户节点授予角色");
+                $("#roleTree").html("");
+                $("#rightTree").html("");
+                $("#addRoleToUser").addClass("layui-btn-disabled");
+                $("#addRoleToUser").attr("disabled",true);
+            }
+
+
+        }
+
+
+        function selRoleTree(organId){
+            $.ajax({
+                url: "/role/selRoleTree",
+                dataType: "json",
+                type: "post",
+                data:{
+                    organId:organId
+                },
+                success: function (result) {
+                    $.fn.zTree.init($("#treeDemo2"), roleSetting, result).expandAll(true);
+                }
+            })
+        }
+
+        function queryRightTree(organId) {
+            $.ajax({
+                url:"/permission/queryPermissionTree",
+                dataType:"json",
+                type:"get",
+                data:{
+                    organId:organId
+                },
+                success:function (result) {
+                    $.fn.zTree.init($("#rightTree"), rightSetting, result).expandAll(true);
+                }
+
+            })
+        }
+
+
+        $("#addRole").on('click',function(){
+            var treeDemo = $.fn.zTree.getZTreeObj("treeDemo");
+            var selectedNodes = treeDemo.getSelectedNodes();
+            if(selectedNodes ==null || selectedNodes.length==0){
+                layer.msg("请选择部门，再添加角色");
+                return false;
+            }
+            layui.open({
+                title: "新增角色",
+                type: 1,
+                area: ['40%', '40%'],
+                content: $("#addRoleTree").html(),
+                success: function () {
+
+                    $("#pid").val(selectedNodes[0].id);
+                    $("#pDeptName").val(selectedNodes[0].name);
+                    form.render();
+                },
+                btn: ['保存', '取消'],
+                yes: function (index, layero) {
+                    addRole(selectedNodes[0], treeDemo);
+                    layer.close(index);
+                }
+            })
+
+
+        })
+        function addRole(selectedNodes,treeDemo){
+
+        }
+
+    });
+
+</script>
+<script type="text/html" id="addRoleTree">
+    <form class="layui-form layui-form-pane" id="deptForm">
+        <div class="layui-form-item">
+            <label class="layui-form-label">部门</label>
+            <div class="layui-input-block">
+                <input type="hidden" id="pid" name="pid" class="layui-input">
+                <input type="text" id="pRoleName" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">角色名称</label>
+            <div class="layui-input-block">
+                <input type="text" name="roleName" id="roleName" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item" pane="">
+            <label class="layui-form-label">是否有效</label>
+            <div class="layui-input-block">
+                <input type="radio" name="isvalid" value="1" title="有效" checked="">
+                <input type="radio" name="isvalid" value="2" title="无效">
+            </div>
+        </div>
+        </form>
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+    http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+    <!--根据Spring的注解查找Controller -->
+    <mvc:annotation-driven />
+
+
+    <!--对web包中的所有类进行扫描   -->
+    <context:component-scan base-package="com.xiaowei.feihu.controller" />
+
+    <mvc:default-servlet-handler/>
+
+
+    <!-- 放开静态资源 -->
+    <mvc:resources location="/commons/" mapping="/commons/**"></mvc:resources>
+<!--进行编码规范-->
+    <bean  class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <property name="templateLoaderPath">
+            <value>/WEB-INF/view/</value>
+        </property>
+        <property name="freemarkerSettings">
+            <props>
+                <prop key="template_update_delay">1</prop>
+                <!--解决乱码 start-->
+                <prop key="default_encoding">UTF-8</prop>
+                <!--解决乱码 end-->
+                <prop key="number_format">0.##</prop>
+                <prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+            </props>
+        </property>
+
+    </bean>
+    <bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+        <property name="contentType" value="text/html;charset=UTF-8"></property>
+        <property name="suffix" value=".html" />
+    </bean>
+	    <!-- 上传文件配置 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"> <!--允许上传文件大小 -->
+		<property name="maxUploadSize" value="104857600000" />
+		<!--缓存大小 -->
+		<property name="maxInMemorySize" value="4096" />
+		<property name="defaultEncoding" value="UTF-8"></property>
+	</bean>
+
+
+<!--    shiro start-->
+    <!-- 开启AOP -->
+<!--    <aop:config proxy-target-class="true"/>-->
+    <!--管理bean的生命周期-->
+<!--    <bean class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />-->
+    <!--权限注解的advisor -->
+<!--    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">-->
+<!--        <property name="securityManager" ref="securityManager"/>-->
+<!--    </bean>-->
+<!--    shiro end-->
+</beans>

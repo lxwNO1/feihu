@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>user</title>
+</head>
+<!--可以引入的按键 -->
+<script type="text/html" id="btnasud">
+    <a class="layui-btn layui-btn-xs">查看</a>
+    <a class="layui-btn layui-btn-xs">编辑</a>
+    <a class="layui-btn layui-btn-xs">删除</a>
+</script>
+<script type="text/html" id="imgusertable">
+<img src="{{imgUrl}}">
+</script>
+<body id="indexbody">
+<div class="layui-row layui-col-space20">
+    <div class="layui-col-md3">
+        <div class="layui-card">
+            <div class="layui-card-header">
+                部门维护
+                <div class="layui-btn-group" style="float: right">
+                    <button type="button" class="layui-btn layui-btn-sm" id="addDept"><i class="layui-icon"></i>
+                    </button>
+                    <button type="button" class="layui-btn layui-btn-sm" id="updateDept"><i class="layui-icon"></i>
+                    </button>
+                    <button type="button" class="layui-btn layui-btn-sm" id="deleteDept"><i class="layui-icon"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="layui-card-body">
+                <div class="ztree" id="deptTree"></div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md9">
+        <div class="layui-card">
+            <div class="layui-card-header">用户维护</div>
+            <div class="layui-card-body">
+                <table id="usertable" lay-filter="userTable"></table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['table','form','laydate','upload'], function(){
+        var table=layui.table;
+        var form=layui.form;
+        var laydate = layui.laydate;
+        var upload = layui.upload;
+        var tableuserlist = table.render({
+            elem:"#usertable"       //赋值地址
+            ,url:"/test/testuser"   //请去地址
+            ,page:true              //分页
+            ,type:'Get'             //请求类型
+            , cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+            , height: 'full-200'
+            // ,data:
+            ,cols:[[                //表头
+                // {type:'checkbox',fixed:'left'}
+                {field: 'id', title: '选择', fixed: 'left', type: 'checkbox', align: "center", rowspan: "2"}
+                , {field: 'id', title: 'ID',align: "center",  rowspan: "2"}
+                , {field: 'deptName', align: "center", title: '部门', rowspan: "2"}
+                , {field: 'userName', align: "center", title: '用户名', rowspan: "2"}
+                , {field: 'realName', align: "center", title: '姓名', rowspan: "2"}
+                , {field: 'eduName' , align: "center", title: '学历', rowspan: "2"}
+                , {
+                    field: 'imgUrl', align: "center", title: '个人头像', rowspan: "2", width: "120",
+                    templet: function (d) {
+                        if (d.imgUrl != null || d.imgUrl != "") {
+                            return "<img src='" + d.imgUrl + "' width='100px' height='100px'>";
+                        } else {
+                            return "";
+                        }
+                    }
+                }
+                , {
+                    field: 'sex', align: "center", title: '性别', rowspan: "2", templet: function (d) {
+                        if (d.sex != null) {
+                            return d.sex == 1 ? "男" : "女";
+                        } else {
+                            return "未知";
+                        }
+                    }
+                }
+                , {align: "center", rowspan: "2", title: '籍贯'}
+                , {field: 'phone', align: "center", title: '手机号', rowspan: "2"}
+                , {field: 'email', align: "center", title: '邮箱', rowspan: "2"}
+                , {field: 'idCard', align: "center", title: '身份证号', rowspan: "2"}
+                , {field: 'phone', align: "center", title: '手机号', rowspan: "2"}
+                , {field: 'createTime', align: "center", title: '创建时间', rowspan: "2"}
+                , {field: 'updateTime', align: "center", title: '修改时间', rowspan: "2"}
+                ,{field:'right',title:'操作',rowspan: "2",width:"200",align:'center',toolbar: '#btnasud'}
+            ]
+            ]
+            , page: {
+                layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
+                , limit: 5
+                , limits: [5, 10, 15, 20]
+                , theme: '#37d5ff'
+            }
+        })
+        //头工具栏事件
+        // table.on('toolbar(userTable)', function (obj) {
+        //     switch (obj.event) {
+        //         case 'addUserInfo':
+        //             addUserInfo();
+        //     }
+        // })
+        //
+        // //监听行工具事件
+        // table.on('tool(userTable)', function(obj){
+        //     var data = obj.data;
+        //     if(obj.event === 'del'){
+        //         layer.confirm('真的删除行么', function(index){
+        //
+        //         });
+        //     } else if(obj.event === 'edit'){
+        //         updateUserInfo(data.id);
+        //     }
+        // });
+        var deptSetting = {
+            view: {
+                selectedMulti: false
+            }
+        }
+
+        //部门查询树
+            $.ajax({
+                url: "/dept/queryDeptTree",
+                dataType: "json",
+                type: "post",
+                success: function (result) {
+                    $.fn.zTree.init($("#deptTree"), deptSetting, result).expandAll(true);
+                }
+            })
+        //添加部门按钮
+        $("#addDept").on("click", function () {
+            var deptTreeObj = $.fn.zTree.getZTreeObj("deptTree");
+            var selectNode = deptTreeObj.getSelectedNodes();
+            //首先判断有没有被选中的节点
+            if (selectNode == null || selectNode.length == 0) {
+                layer.msg("请选择上级部门，再添加子部门");
+                return false;
+            }
+            layer.open({
+                title: "新增部门",
+                type: 1,
+                area: ['40%', '40%'],
+                content: $("#deptHtml").html(),
+                success: function () {
+
+                    $("#pid").val(selectNode[0].id);
+                    $("#pDeptName").val(selectNode[0].name);
+                    form.render();
+                },
+                btn: ['保存', '取消'],
+                yes: function (index, layero) {
+                    addDept(selectNode[0], deptTreeObj);
+                    layer.close(index);
+                }
+
+            })
+        })
+        //部门删除
+        $("#deleteDept").on("click",function () {
+            var deptTreeObj = $.fn.zTree.getZTreeObj("deptTree");
+            var selectNode = deptTreeObj.getSelectedNodes();
+            //首先判断有没有被选中的节点
+            if (selectNode == null || selectNode.length == 0) {
+                layer.msg("请选择部门，再删除部门");
+                return false;
+            }
+            layer.open({
+                title: "确认删除"
+                ,type:1
+                ,area:['40%','20%']
+                ,content:'部门:'+selectNode[0].name
+                ,success: function() {
+                
+                }
+                ,btn: ['确认删除', '取消']
+                ,yes: function (a,b) {
+                    delDept(selectNode)
+                    layer.close(a);
+                }
+            })
+
+        })
+    })
+    //添加数据
+    function addDept(pNode, treeObj) {
+        $.ajax({
+            url: "/dept/addDept",
+            type: "post",
+            dataType: "json",
+            data: $("#deptForm").serialize(),
+            async: false,
+            success: function () {
+                // var newNode = {
+                //     "id": result.id,
+                //     "name": result.deptName,
+                //     "icon": "/commons/orgimg/dept2.png"
+                // }
+                // treeObj.addNodes(pNode, newNode);
+            }
+        })
+    }
+
+    //删除请求
+    function delDept(selectNode){
+        $.ajax({
+            url:"/dept/delDept"
+            ,type:"post"
+            ,dataType:"json"
+            ,data:{"id":selectNode[0].id}
+            ,success: function (asd) {
+                alert(selectNode[0].name+"部门已删除")
+            }
+        })
+    }
+
+</script>
+<!--增加部门的弹框-->
+<script type="text/html" id="deptHtml">
+    <form class="layui-form layui-form-pane" id="deptForm">
+        <div class="layui-form-item">
+            <label class="layui-form-label">上级部门</label>
+            <div class="layui-input-block">
+                <input type="hidden" id="pid" name="pid" class="layui-input">
+                <input type="text" id="pDeptName" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">部门名称</label>
+            <div class="layui-input-block">
+                <input type="text" name="deptName" id="deptName" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item" pane="">
+            <label class="layui-form-label">是否有效</label>
+            <div class="layui-input-block">
+                <input type="radio" name="isvalid" value="1" title="有效" checked="">
+                <input type="radio" name="isvalid" value="2" title="无效">
+            </div>
+        </div>
+    </form>
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xiaowei.feihu.mapper.TestUserMapper">
+
+    <select id="userwheres" resultType="com.xiaowei.feihu.entity.TestUser">
+        select         a.id,a.userName,a.realName,a.password,a.phone,a.email,a.idCard,a.sex,a.birthday,a.imgUrl,a.eduId,a.provinceCode,a.cityCode,a.areaCode,a.deptId,a.createTime,a.updateTime
+        from  t_sys_user as a
+    </select>
+    <select id="testcountUser" resultType="java.lang.Long">
+        select count(a.id)
+        from t_sys_user as a
+    </select>
+</mapper>

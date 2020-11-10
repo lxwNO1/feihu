@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xiaowei.feihu.mapper.PermissionMapper">
+    <select id="queryRightByRoleId" parameterType="java.lang.Integer" resultType="java.util.Map">
+      select p.id,p.pname name,pid pId,if(rp.perId is null,'false','true') checked from t_sys_permission  p
+        LEFT JOIN
+        (select roleId,perId  from t_sys_role_permission where roleId=#{organId}) rp
+        on p.id=rp.perId
+        order by p.id
+    </select>
+</mapper>
